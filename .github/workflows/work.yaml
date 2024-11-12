@@ -24,7 +24,6 @@ jobs:
       - name: Set up Chrome
         uses: browser-actions/setup-chrome@v1
         with:
-          chrome-version: 120
           install-chromedriver: true
 
       - name: 总脚本
