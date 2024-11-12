@@ -1,8 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 import json
 from bs4 import BeautifulSoup
@@ -35,8 +33,7 @@ chrome_options.add_argument("--no-sandbox")  # 解决一些权限问题
 chrome_options.add_argument("--disable-dev-shm-usage")  # 解决共享内存问题
 
 
-service = Service(rf'/usr/local/bin/chromedriver')  # 确保路径正确
-web = webdriver.Chrome(service=service, options=chrome_options)
+web = webdriver.Chrome(options=chrome_options)
 
 def Lingqu():
     try:
