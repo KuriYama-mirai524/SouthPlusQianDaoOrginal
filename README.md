@@ -29,6 +29,7 @@
     }
 ]
 ```
+![alt text](image.png)
 ### 本地构建要求
 
 请确保安装了 Chrome 和对应版本的 ChromeDriver。
