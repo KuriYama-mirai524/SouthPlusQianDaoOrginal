@@ -10,34 +10,25 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.x
-    
-    - name: Install dependencies
-      run: pip install -r requirements.txt
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+      
+      - name: Install dependencies
+        run: pip install -r requirements.txt
 
-    - name: Install Chrome
-      run: |
-        CHROME_VERSION=103.0.5060.53
-        wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-        sudo dpkg -i google-chrome-stable_current_amd64.deb || sudo apt-get install -f
-        sudo apt-get install -y google-chrome-stable
+      - name: Set up Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: 120
+          install-chromedriver: true
 
-    - name: Install ChromeDriver
-      run: |
-        wget https://storage.googleapis.com/chrome-for-testing-public/130.0.6723.91/linux64/chromedriver-linux64.zip
-        unzip chromedriver-linux64.zip
-        cd chromedriver-linux64
-        chmod +x chromedriver
-        sudo mv chromedriver /usr/local/bin/
-
-    - name: 总脚本
-      env:
-        COOKIE: ${{ secrets.COOKIE }}
-        serverKey: ${{ secrets.serverKey }}
-      run: python byWebdrvier.py
+      - name: 总脚本
+        env:
+          COOKIE: ${{ secrets.COOKIE }}
+          serverKey: ${{ secrets.serverKey }}
+        run: python byWebdrvier.py
