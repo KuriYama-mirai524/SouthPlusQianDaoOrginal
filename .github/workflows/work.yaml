@@ -1,7 +1,9 @@
 name: SouthPlus签到
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:  
+  schedule:
+    - cron: '0 17 * * *' 
 
 jobs:
   run-script:
