@@ -7,13 +7,16 @@ from bs4 import BeautifulSoup
 import requests
 import time
 import os
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 # 获取系统变量serverKey
 serverKey = os.environ.get('serverKey')
 
-
-# 获取 COOKIE 环境变量
 cookie_json = os.environ.get('COOKIE')
+# 获取 COOKIE 环境变量
+# with open('cookies.json', 'r') as f:
+#     cookie_json = f.read()
 
 # 获取 COOKIE 环境变量并解析为 JSON 列表
 
@@ -28,10 +31,26 @@ else:
     print("错误：COOKIE 环境变量未设置。")
 
 chrome_options = Options()
-chrome_options.add_argument("--headless")  # 如果你在无头模式下运行
-chrome_options.add_argument("--no-sandbox")  # 解决一些权限问题
-chrome_options.add_argument("--disable-dev-shm-usage")  # 解决共享内存问题
+chrome_options.add_argument("--headless=new")  # 使用新版无头模式
+chrome_options.add_argument("--no-sandbox")
+chrome_options.add_argument("--disable-dev-shm-usage")
+# 添加以下选项来模拟真实浏览器
+chrome_options.add_argument("--window-size=1920,1080")  # 设置窗口大小
+chrome_options.add_argument("--start-maximized")
+chrome_options.add_argument("--disable-blink-features=AutomationControlled")  # 禁用自动化标志
+chrome_options.add_argument("--disable-gpu")
+# 添加 User-Agent
+chrome_options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36")
 
+# 添加其他选项
+prefs = {
+    "profile.default_content_setting_values.notifications": 2,  # 禁用通知
+    "credentials_enable_service": False,  # 禁用保存密码提示
+    "profile.password_manager_enabled": False
+}
+chrome_options.add_experimental_option("prefs", prefs)
+chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])  # 禁用自动化提示
+chrome_options.add_experimental_option('useAutomationExtension', False)
 
 web = webdriver.Chrome(options=chrome_options)
 
@@ -108,9 +127,8 @@ def Lingqu():
 
 url = 'https://www.south-plus.net/plugin.php?H_name-tasks.html.html'
 web.get(url)
-
 time.sleep(1)
-# # 保存cookies为json格式
+# 保存cookies为json格式
 # cookies = web.get_cookies()
 # print(cookies)
 # with open('cookies.json', 'w') as f:
@@ -122,33 +140,30 @@ for cookie in cookie_data:
     web.add_cookie(cookie)
 
 # 重新加载页面
-web.get(url)
-time.sleep(3)
+web.refresh()
+# 截图当前页面
+WebDriverWait(web, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="p_15"]')))
 # 领取周常
-soup = BeautifulSoup(web.page_source, 'html.parser')
-weekly_task_1 = soup.find('span', id='p_15')
-weekly_task_2 = soup.find('span', id='p_14')
-print(weekly_task_1,weekly_task_2)
-
-
-if weekly_task_1 and weekly_task_2:
-    web.find_element(By.XPATH, '//*[@id="p_14"]/a/img').click()
-    web.find_element(By.XPATH, '//*[@id="p_15"]/a/img').click()
-    print('任务已领取')
-    Lingqu()  
-
-elif weekly_task_1:
-    web.find_element(By.XPATH, '//*[@id="p_15"]/a/img').click()
-    Lingqu()
-
-elif weekly_task_2:
-    web.find_element(By.XPATH, '//*[@id="p_14"]/a/img').click()
-    Lingqu()
+try:  
+    # 添加显式等待，确保元素可点击
+    WebDriverWait(web, 10).until(
+        EC.element_to_be_clickable((By.XPATH, '//*[@id="p_15"]/a/img'))
+    )
+    try:
+        web.find_element(By.XPATH, '//*[@id="p_15"]/a/img').click()
+        print('周常领取成功')
+        web.find_element(By.XPATH, '//*[@id="p_14"]/a/img').click()
+        print('日常领取成功')
+        Lingqu()
+    except:
+        web.find_element(By.XPATH, '//*[@id="p_14"]/a/img').click()
+        print('日常领取成功')
+        Lingqu()
 
 
     
-else:
-    print('任务暂未刷新')
+except Exception as e:
+    print(f"发生错误: {str(e)}")
 
 
 
